@@ -1,0 +1,46 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "CIIT#0908"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+
+  webapiwithdockercompose:
+    build:
+      context: ./webapiwithdockercompose
+      dockerfile: Dockerfile
+    container_name: webapiwithdockercompose
+    depends_on:
+      - sqlserver
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=115.124.106.98;Database=ciitstud_;User Id=ciituser;Password=CIIT#0908;TrustServerCertificate=True;
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+
+  studentapidocker:
+    build:
+      context: ./StudentAPI
+      dockerfile: Dockerfile
+    container_name: studentapidocker
+    # depends_on:
+    #   - sqlserver
+    # environment:
+    #   - ConnectionStrings__DefaultConnection=Server=115.124.106.98;Database=ciitstud_;User Id=ciituser;Password=CIIT#0908;TrustServerCertificate=True;
+    ports:
+      - "5003:8080"
+      - "5004:8081"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    depends_on:
+      - webapiwithdockercompose
+      - studentapidocker
+    ports:
+      - "4202:80"

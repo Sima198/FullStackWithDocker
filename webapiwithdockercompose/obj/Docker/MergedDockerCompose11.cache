@@ -1,0 +1,69 @@
+name: dockercompose8664906409826258203
+services:
+  angularfrontend:
+    build:
+      context: C:\Users\Lenovo\OneDrive\Documents\angularfrontend
+      dockerfile: Dockerfile
+    container_name: angularfrontend
+    depends_on:
+      webapiwithdockercompose:
+        condition: service_started
+        required: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "4202"
+        protocol: tcp
+  sqlserver:
+    container_name: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: CIIT#0908
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 1433
+        published: "1433"
+        protocol: tcp
+  webapiwithdockercompose:
+    build:
+      context: C:\Users\Lenovo\OneDrive\Documents\webapiwithdockercompose
+      dockerfile: webapiwithdockercompose/Dockerfile
+    command:
+      - dotnet
+      - webapiwithdockercompose.dll
+      - --urls
+      - http://+:8080
+    container_name: webapiwithdockercompose
+    depends_on:
+      sqlserver:
+        condition: service_started
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=115.124.106.98;Database=ciitstud_;User Id=ciituser;Password=CIIT#0908;TrustServerCertificate=True;
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5000"
+        protocol: tcp
+      - mode: ingress
+        target: 8081
+        published: "5001"
+        protocol: tcp
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
+      - mode: ingress
+        target: 8081
+        protocol: tcp
+networks:
+  default:
+    name: dockercompose8664906409826258203_default
